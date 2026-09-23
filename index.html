@@ -18,72 +18,99 @@
 <style>
 :root{
   --bg:#EDF0F3;--surface:#F8FAFB;--ink:#1C2733;--muted:#677483;--line:#D3DAE1;
-  --pray:#2F4E6E;--pray-soft:#DCE5EE;--ans:#7A6818;--ans-soft:#EFE8CC;--danger:#9B3B3B;--ok:#4F7D5C;
+  --pray:#2F4E6E;--pray-soft:#DCE5EE;--ans:#7A6818;--ans-soft:#EFE8CC;--thx:#96525C;--thx-soft:#F1E0E2;
+  --danger:#9B3B3B;--ok:#4F7D5C;
   --serif:"Gowun Batang","AppleMyungjo","Nanum Myeongjo",serif;
   --sans:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);color-scheme:light dark;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#12171D;--surface:#1A2129;--ink:#E3E8ED;--muted:#8D99A6;--line:#2B343E;
-  --pray:#93B3D3;--pray-soft:#1E2A37;--ans:#D8C067;--ans-soft:#2D2915;--danger:#E08B8B;--ok:#8CC09A;}}
+  --pray:#93B3D3;--pray-soft:#1E2A37;--ans:#D8C067;--ans-soft:#2D2915;--thx:#DB9AA3;--thx-soft:#33222A;
+  --danger:#E08B8B;--ok:#8CC09A;}}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
 button{font:inherit;color:inherit;cursor:pointer}
 main{max-width:560px;margin:0 auto;padding:20px 20px calc(100px + env(safe-area-inset-bottom,0px))}
 :focus-visible{outline:2px solid var(--pray);outline-offset:2px}
+.c-g{--k:var(--thx);--ks:var(--thx-soft)}.c-p{--k:var(--pray);--ks:var(--pray-soft)}.c-a{--k:var(--ans);--ks:var(--ans-soft)}
 
 .top{display:flex;justify-content:space-between;align-items:flex-start;margin:8px 0 4px}
 .date{font:700 30px/1.2 var(--serif);letter-spacing:-.01em}
 .wd{color:var(--muted);font-size:14px;margin-top:2px}
+.tools{display:flex;align-items:center;gap:2px}
+.eye{border:0;background:none;color:var(--muted);font-size:12px;padding:6px 8px;border-radius:7px}
+.eye[aria-pressed="true"]{color:var(--ink);background:var(--line)}
 .dot{width:32px;height:32px;border:0;background:none;display:grid;place-items:center;padding:0}
 .dot::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--line)}
 .dot.ok::after{background:var(--ok)}.dot.err::after{background:var(--danger)}.dot.busy::after{background:var(--ans)}
+body.hide .line .tx,body.hide .float .chip{filter:blur(7px);user-select:none}
 
-.composer{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--pray);border-radius:14px;padding:12px 14px;margin:18px 0 6px}
-.composer.ans{border-left-color:var(--ans)}
+/* 대상 줄: 쓰는 칸 밖에 따로 */
+.who{display:flex;gap:6px;overflow-x:auto;margin:18px -20px 0;padding:2px 20px 4px;scrollbar-width:none}
+.who::-webkit-scrollbar{display:none}
+.who .lbl{flex:none;align-self:center;font-size:12px;color:var(--muted);margin-right:2px}
+.wchip{flex:none;border:1px dashed var(--muted);background:none;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted)}
+.wchip[aria-pressed="true"]{border:1px solid var(--pray);background:var(--pray);color:var(--surface)}
+
+.composer{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--k);border-radius:14px;padding:12px 14px;margin:10px 0 6px}
+.ctop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .seg{display:inline-flex;gap:2px;background:var(--bg);border-radius:9px;padding:3px}
-.seg button{border:0;background:none;padding:5px 14px;border-radius:7px;font-weight:500;font-size:13px;color:var(--muted)}
+.seg button{border:0;background:none;padding:5px 13px;border-radius:7px;font-weight:500;font-size:13px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.seg.types button[aria-pressed="true"]{color:var(--k)}
+.datechip{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;padding:4px 8px;font:13px var(--sans);min-height:30px}
+.datechip.past{color:var(--ans);border-color:var(--ans);font-weight:600}
 #ta{display:block;width:100%;border:0;background:none;resize:none;font:17px/1.65 var(--serif);color:var(--ink);padding:10px 0 6px;min-height:46px;outline:none;overflow:hidden}
 #ta::placeholder{color:var(--muted)}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .row.end{justify-content:flex-end;margin-top:12px}
 .btn{border:0;border-radius:9px;padding:8px 16px;font-weight:600;font-size:14px;background:var(--pray);color:var(--surface)}
-.composer.ans .btn.primary{background:var(--ans)}
+.composer .btn.primary{background:var(--k)}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
 .btn.danger{background:none;color:var(--danger);border:1px solid var(--line)}
 .btn.small{padding:4px 10px;font-size:12px;font-weight:500}
-
-.float{margin-top:6px}
-.float .lbl{font-size:12px;color:var(--ans);margin-bottom:4px}
+.hint{font-size:12px;color:var(--muted)}
+.float{flex:1;min-width:0}
+.float .lbl{font-size:12px;color:var(--muted);margin-bottom:4px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--pray-soft);border-color:var(--pray)}
-.chip.ans{border-color:var(--ans-soft);background:var(--ans-soft)}
+.chip.soft{border-color:var(--ans-soft);background:var(--ans-soft)}
 
 h2{font-size:13px;font-weight:600;color:var(--muted);margin:28px 0 6px}
 h2.mh{display:flex;justify-content:space-between;color:var(--ink);font-size:14px;border-bottom:1px solid var(--line);padding-bottom:6px}
 h2.mh span{color:var(--muted);font-weight:400;font-size:12px}
-.entry{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--pray);padding:4px 0 4px 12px;margin:12px 0}
-.entry.a{border-left-color:var(--ans)}
+.grp{margin:4px 0 12px}
+.gl{font-size:12px;font-weight:600;color:var(--k)}
+.entry{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--k);padding:4px 0 4px 12px;margin:10px 0}
 .entry .tx{font:16px/1.7 var(--serif);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
-.entry .meta{font-size:12px;color:var(--muted);margin-top:1px}
-.tag{color:var(--pray)}.a .tag,.kind.a~.tag{color:var(--ans)}
+.entry .meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12px;color:var(--muted);margin-top:1px}
+.wp{border:1px solid var(--line);border-radius:999px;padding:0 8px;color:var(--ink)}
+.tag{color:var(--k)}
+.blk{border-left:3px solid var(--k);padding:0 0 0 12px;margin:8px 0 14px}
+.bh{font-size:12px;font-weight:600;color:var(--k);padding-top:2px}
+.line{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 0;font:16px/1.7 var(--serif);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.line+.line{border-top:1px dashed var(--line)}
+.lm{display:inline-flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin-left:8px;font:12px/1.4 var(--sans);color:var(--muted);vertical-align:1px;white-space:normal}
+.dl{font-size:13px;font-weight:600;margin:16px 0 0}
+.retro .dl{font-weight:500;color:var(--muted);margin-top:4px}
 .retro{margin:6px 0 14px}
 .retro .rl{font:600 13px var(--sans);color:var(--ans)}
 .empty{color:var(--muted);font-size:14px;margin:28px 0}
-
 .search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:15px var(--sans);margin:14px 0 10px}
 
 .field{display:block;margin:12px 0}
 .field span{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .field input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:15px var(--sans)}
+.field input[type=number]{width:90px}
 .sub{color:var(--muted);font-size:13px;margin:4px 0}
 .status{font-size:13px;margin:8px 0}
 .status.err{color:var(--danger)}
 .toggle{display:flex;gap:10px;align-items:center;margin:10px 0}
 .toggle input{width:18px;height:18px;accent-color:var(--pray)}
+.danger-zone{margin-top:32px;padding-top:4px;border-top:1px solid var(--line)}
 
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
 nav button{flex:1;max-width:186px;border:0;background:none;padding:13px 0 11px;font-weight:500;font-size:13px;color:var(--muted)}
@@ -95,42 +122,30 @@ nav button[aria-current="page"]{color:var(--ink);font-weight:600}
 .sheet.open{transform:none}
 @media (prefers-reduced-motion:reduce){.sheet,.scrim{transition:none}}
 .sheet h3{font-size:13px;font-weight:600;color:var(--muted);margin:24px 0 8px}
-.sheet h3:first-child{margin-top:4px;color:var(--ink);font-size:16px}
 .dh{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--pray-soft);color:var(--pray)}
-.kind.a{background:var(--ans-soft);color:var(--ans)}
+.kind{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--ks);color:var(--k)}
 .dd{font-size:13px;color:var(--muted)}
 .big{font:19px/1.75 var(--serif);margin:14px 0 4px;white-space:pre-wrap;overflow-wrap:anywhere}
 .ed{width:100%;min-height:96px;margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:17px/1.6 var(--serif);resize:vertical}
-.thread{margin:6px 0 0 5px;padding-left:18px;border-left:2px solid var(--ans-soft)}
-.thread.p{border-left-color:var(--pray-soft)}
+.thread{margin:6px 0 0 5px;padding-left:18px;border-left:2px solid var(--line)}
 .node{position:relative;margin:0 0 14px}
-.node::before{content:"";position:absolute;left:-24.5px;top:7px;width:11px;height:11px;border-radius:50%;background:var(--ans)}
-.thread.p .node::before{background:var(--pray)}
-.elapsed{font-size:12px;font-weight:600;color:var(--ans)}
-.thread.p .elapsed{color:var(--pray)}
+.node::before{content:"";position:absolute;left:-24.5px;top:7px;width:11px;height:11px;border-radius:50%;background:var(--k)}
+.elapsed{font-size:12px;font-weight:600;color:var(--k)}
 .node .open{display:block;text-align:left;border:0;background:none;padding:0;font:16px/1.65 var(--serif);white-space:pre-wrap;overflow-wrap:anywhere}
 .node .nm{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
 .link-x{border:0;background:none;color:var(--muted);font-size:12px;text-decoration:underline;padding:0}
-.pick{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;margin:8px 0}
-.pick[aria-pressed="true"]{border-color:var(--ans);background:var(--ans-soft)}
+.pick{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px}
 .pick .pd{display:block;font-size:12px;color:var(--muted)}
 .pick .pt{font:15px/1.6 var(--serif)}
 .cand{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
-.cand .pick{margin:0;flex:1}
 .back{border:0;background:none;color:var(--muted);font-size:13px;padding:0;margin-bottom:8px}
 
-.tools{display:flex;align-items:center;gap:2px}
-.eye{border:0;background:none;color:var(--muted);font-size:12px;padding:6px 8px;border-radius:7px}
-.eye[aria-pressed="true"]{color:var(--ink);background:var(--line)}
-body.hide .entry .tx,body.hide .float .chip{filter:blur(7px);user-select:none}
-.ctop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.datechip{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;padding:4px 8px;font:13px var(--sans);min-height:30px}
-.datechip.past{color:var(--ans);border-color:var(--ans);font-weight:600}
-.targets{margin:2px 0 8px}
-.targets .chip{font-size:12px;padding:3px 10px}
-.danger-zone{margin-top:32px;padding-top:4px;border-top:1px solid var(--line)}
-.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.verse{display:block;text-decoration:none;color:inherit;margin:16px 0 0;padding:2px 0 2px 14px;border-left:2px solid var(--ks);transition:opacity .18s ease}
+.verse.fade{opacity:0}
+.verse .vt{display:block;font:15px/1.75 var(--serif);color:var(--ink);opacity:.82;word-break:keep-all}
+.verse .vr{display:block;font-size:12px;color:var(--k);margin-top:2px}
+@media (prefers-reduced-motion:reduce){.verse{transition:none}}
+.toast{position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:9px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;white-space:nowrap}
 .toast.show{opacity:1}
 </style>
 </head>
@@ -154,10 +169,12 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
-let data=load(LS_DATA,{v:1,entries:[],links:[]}); data.entries=data.entries||[]; data.links=data.links||[]; data.cfg=data.cfg||{targets:[],u:0};
-let set=Object.assign({token:'',gistId:'',pass:'',reverse:true,hide:false},load(LS_SET,{}));
+const NAME={g:'감사',p:'간청',a:'응답'};
+let data=load(LS_DATA,{v:1,entries:[],links:[]});
+data.entries=data.entries||[];data.links=data.links||[];data.cfg=Object.assign({targets:[],thanks:3,u:0},data.cfg||{});
+let set=Object.assign({token:'',gistId:'',pass:'',reverse:true,hide:false,verse:true},load(LS_SET,{}));
 const saveSet=()=>store(LS_SET,set);
-let ui={view:'write',mode:'p',filter:'all',tag:null,q:'',draft:'',date:null};
+let ui={view:'write',mode:'g',manual:false,filter:'all',tag:null,q:'',draft:'',date:null,who:[],flo:null,edit:null};
 let stack=[];
 
 /* ---------- 날짜 ---------- */
@@ -174,29 +191,33 @@ const daysBetween=(a,b)=>Math.round((parseD(b)-parseD(a))/864e5);
 const byDate=(a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.c||0)-(b.c||0);
 const TAG_RE=/#([^\s#.,!?]+)/g;
 const tagsOf=t=>[...new Set([...t.matchAll(TAG_RE)].map(m=>m[1]))];
+const topicsOf=e=>[...new Set([...tagsOf(e.text),...(e.who||[])])];
 const fmtText=t=>esc(t).replace(TAG_RE,'<span class="tag">#$1</span>');
+const disp=w=>w.replace(/_/g,' ');
 const snip=(t,n=22)=>{t=t.replace(/\s+/g,' ');return t.length>n?t.slice(0,n)+'…':t};
 
 /* ---------- 데이터 ---------- */
+const targets=()=>data.cfg.targets||[];
+const THX=()=>Math.max(1,Math.min(10,+data.cfg.thanks||3));
 const alive=()=>data.entries.filter(e=>!e.del);
 const byId=id=>data.entries.find(e=>e.id===id&&!e.del);
 const liveLinks=()=>data.links.filter(l=>!l.del&&byId(l.p)&&byId(l.a));
 function linkedOf(e){const L=liveLinks();return e.t==='p'?L.filter(l=>l.p===e.id).map(l=>byId(l.a)):L.filter(l=>l.a===e.id).map(l=>byId(l.p))}
 function isLinked(p,a){return data.links.some(l=>l.p===p&&l.a===a&&!l.del)}
 function setLink(p,a,on){let l=data.links.find(x=>x.p===p&&x.a===a);if(!l){if(!on)return;l={p,a};data.links.push(l)}l.del=!on;l.u=Date.now();commit()}
-function addEntry(t,text,d){const n=Date.now(),e={id:uid(),t,text,d:d||today(),c:n,u:n};data.entries.push(e);commit();return e}
-function editEntry(e,text,d){e.text=text;e.d=d;e.u=Date.now();commit()}
-function delEntry(e){e.del=true;e.text='';e.u=Date.now();commit()}
+function addEntry(t,text,d,who){const n=Date.now(),e={id:uid(),t,text,d:d||today(),c:n,u:n};if(who&&who.length)e.who=[...who];data.entries.push(e);commit();return e}
+function delEntry(e){e.del=true;e.text='';e.who=undefined;e.u=Date.now();commit()}
+function setCfg(patch){data.cfg=Object.assign({},data.cfg,patch,{u:Date.now()});commit()}
 function commit(){store(LS_DATA,data);IDX=null;schedulePush()}
 function merge(a,b){
   const m=new Map();for(const e of[...(a.entries||[]),...(b.entries||[])]){const x=m.get(e.id);if(!x||(e.u||0)>(x.u||0))m.set(e.id,e)}
   const L=new Map();for(const l of[...(a.links||[]),...(b.links||[])]){const k=l.p+'|'+l.a,x=L.get(k);if(!x||(l.u||0)>(x.u||0))L.set(k,l)}
-  const ca=a.cfg||{targets:[],u:0},cb=b.cfg||{targets:[],u:0};
-  return{v:1,entries:[...m.values()],links:[...L.values()],cfg:(ca.u||0)>=(cb.u||0)?ca:cb};
+  const ca=a.cfg||{u:0},cb=b.cfg||{u:0};
+  return{v:1,entries:[...m.values()],links:[...L.values()],cfg:Object.assign({targets:[],thanks:3,u:0},(ca.u||0)>=(cb.u||0)?ca:cb)};
 }
 const canon=d=>JSON.stringify([d.cfg||null,[...d.entries].sort((x,y)=>x.id<y.id?-1:1),[...d.links].sort((x,y)=>(x.p+x.a)<(y.p+y.a)?-1:1)]);
 
-/* ---------- 닮은 기록 찾기 (키워드+글자쌍 TF-IDF) ---------- */
+/* ---------- 닮은 기록 찾기 ---------- */
 const PARTICLES=['에서는','으로는','에게서','께서는','이라고','라고','까지','부터','에서','에게','한테','께서','으로','처럼','보다','마다','이나','하고','은','는','이','가','을','를','에','의','와','과','도','로','만','요'];
 const STOP=new Set(['기도','여호와','하느님','하나님','감사','감사합니다','감사드립니다','주십시오','주세요','도와','오늘','정말','너무','있게','하게','것','수','더','잘','좀','저','제','우리','그리고','있도록','합니다','드립니다']);
 function feats(text){
@@ -205,8 +226,7 @@ function feats(text){
   for(let w of words){
     for(const p of PARTICLES){if(w.length>p.length+1&&w.endsWith(p)){w=w.slice(0,-p.length);break}}
     if(STOP.has(w)||w.length<2)continue;
-    add('w:'+w,1);
-    for(let i=0;i<w.length-1;i++)add('b:'+w.slice(i,i+2),.5);
+    add('w:'+w,1);for(let i=0;i<w.length-1;i++)add('b:'+w.slice(i,i+2),.5);
   }
   return f;
 }
@@ -220,14 +240,14 @@ function index(){
   return IDX={df,N:es.length,V};
 }
 function cos(a,b){let s=0;const[x,y]=a.v.size<b.v.size?[a,b]:[b,a];for(const[k,w]of x.v){const u=y.v.get(k);if(u)s+=w*u}return s/(a.n*b.n)}
-function similar(src,type,{k=5,min=.15,exclude=new Set()}={}){
+function similar(src,types,{k=5,min=.15,exclude=new Set(),topics=[]}={}){
   const I=index(),isStr=typeof src==='string';
   const sv=isStr?vec(feats(src),I.df,I.N):I.V.get(src.id);if(!sv)return[];
-  const st=tagsOf(isStr?src:src.text),out=[];
+  const st=[...new Set([...(isStr?tagsOf(src):topicsOf(src)),...topics])],out=[];
   for(const e of alive()){
-    if(e.t!==type||exclude.has(e.id)||(!isStr&&e.id===src.id))continue;
+    if(!types.includes(e.t)||exclude.has(e.id)||(!isStr&&e.id===src.id))continue;
     let s=cos(sv,I.V.get(e.id));
-    if(st.length&&tagsOf(e.text).some(t=>st.includes(t)))s+=.35;
+    if(st.length&&topicsOf(e).some(t=>st.includes(t)))s+=.35;
     if(s>=min)out.push({e,s});
   }
   return out.sort((a,b)=>b.s-a.s).slice(0,k).map(x=>x.e);
@@ -245,7 +265,55 @@ function retro(){
   return groups;
 }
 
-/* ---------- 암호화 (AES-GCM, PBKDF2) ---------- */
+/* ---------- 감사→간청 흐름 ---------- */
+const workDay=()=>ui.date||today();
+const thxCount=()=>alive().filter(e=>e.t==='g'&&e.d===workDay()).length;
+const curMode=()=>ui.manual?ui.mode:(thxCount()<THX()?'g':'p');
+function placeholder(m){
+  if(m==='g'){const k=thxCount()+1,N=THX();return k<=N?`감사 ${k}/${N}: 오늘 감사한 일`:`감사 ${k}: 오늘 감사한 일`}
+  return m==='p'?'간청: 오늘 구하는 것':'응답: 오늘 느낀 응답';
+}
+const hintText=m=>m==='g'?'빈 칸에서 Enter를 누르면 간청으로':m==='p'?'빈 칸에서 Enter를 누르면 감사로':'빈 칸에서 Enter를 누르면 돌아가요';
+function flipFlow(){
+  const m=curMode();
+  if(m==='a'){ui.manual=false}else{ui.manual=true;ui.mode=m==='g'?'p':'g'}
+  ui.flo=null;syncComposer();
+}
+function syncComposer(){
+  const c=$('#composer');if(!c)return;const m=curMode();
+  c.className='composer c-'+m;
+  c.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  $('#ta').placeholder=placeholder(m);renderFloat();syncVerse();
+}
+
+
+/* ---------- 성구 (신세계역 성경 연구용, wol.jw.org) ---------- */
+const WOL='https://wol.jw.org/ko/wol/b/r8/lp-ko/nwtsty/';
+const V=[
+ {k:'g',r:'데살로니가 전서 5:17, 18',u:'52/5#v=52:5:17',t:'끊임없이 기도하십시오. 모든 것에 대해 감사하십시오.'},
+ {k:'g',r:'야고보서 1:17',u:'59/1#v=59:1:17',t:'모든 좋은 선물과 모든 완전한 선물은 위에서, 하늘의 빛들의 아버지에게서 내려옵니다.'},
+ {k:'g',r:'시편 145:9',u:'19/145#v=19:145:9',t:'여호와는 모두에게 선하시고, 만드신 모든 것에 그분의 자비가 나타나 있습니다.'},
+ {k:'g',r:'시편 145:16',u:'19/145#v=19:145:16',t:'당신은 손을 펴서 모든 생물의 소원을 만족시켜 주십니다.'},
+ {k:'g',r:'빌립보서 4:6',u:'50/4#v=50:4:6',t:'아무것도 염려하지 말고, 모든 일에 감사와 더불어 기도와 간구로 여러분의 청원을 하느님께 알리십시오.'},
+ {k:'p',r:'빌립보서 4:6',u:'50/4#v=50:4:6',t:'아무것도 염려하지 말고, 모든 일에 감사와 더불어 기도와 간구로 여러분의 청원을 하느님께 알리십시오.'},
+ {k:'p',r:'베드로 전서 5:7',u:'60/5#v=60:5:7',t:'여러분의 염려를 모두 그분에게 내맡기십시오. 그분이 여러분에게 관심을 갖고 계시기 때문입니다.'},
+ {k:'p',r:'시편 55:22',u:'19/55#v=19:55:22',t:'너의 무거운 짐을 여호와께 내맡겨라. 그분이 너를 붙들어 주시리니, 그분은 의로운 자가 넘어지도록 결코 내버려 두지 않으시리라.'},
+ {k:'p',r:'시편 62:8',u:'19/62#v=19:62:8',t:'오 백성아, 언제나 그분을 신뢰하여라. 그분 앞에 너희 마음을 쏟아 놓아라. 하느님은 우리의 도피처이시다.'},
+ {k:'p',r:'로마서 12:12',u:'45/12#v=45:12:12',t:'희망 가운데 기뻐하십시오. 환난 중에 인내하십시오. 꾸준히 기도하십시오.'},
+ {k:'p',r:'시편 65:2',u:'19/65#v=19:65:2',t:'오 기도를 들으시는 분이여, 모든 부류의 사람이 당신에게 나아갈 것입니다.'},
+ {k:'p',r:'시편 55:17',u:'19/55#v=19:55:17',t:'내가 저녁과 아침과 한낮에 괴로워하며 신음하니, 그분이 내 목소리를 들어 주시는구나.'},
+ {k:'a',r:'빌립보서 4:7',u:'50/4#v=50:4:7',t:'그러면 모든 이해를 뛰어넘는 하느님의 평화가 그리스도 예수를 통해 여러분의 마음과 정신력을 지켜 줄 것입니다.'},
+ {k:'a',r:'시편 145:18',u:'19/145#v=19:145:18',t:'여호와는 자신을 부르는 모든 이에게, 자신을 참되게 부르는 모든 이에게 가까이 계십니다.'},
+ {k:'a',r:'시편 145:19',u:'19/145#v=19:145:19',t:'하느님은 자신을 두려워하는 이들의 소원을 만족시켜 주시니, 도와 달라는 그들의 부르짖음을 듣고 그들을 구출하십니다.'},
+ {k:'a',r:'시편 145:14',u:'19/145#v=19:145:14',t:'여호와는 넘어지는 자를 모두 붙들어 주시고 구부러진 자를 모두 일으켜 주십니다.'},
+ {k:'a',r:'시편 62:5',u:'19/62#v=19:62:5',t:'진실로 내가 하느님을 잠잠히 기다리니 나의 희망이 그분에게서 오기 때문이다.'},
+];
+function verseFor(k){const pool=V.filter(v=>v.k===k),n=Math.floor(parseD(today())/864e5);return pool[((n%pool.length)+pool.length)%pool.length]}
+function verseHTML(k){if(!set.verse)return '';const v=verseFor(k);return `<a class="verse c-${k}" id="verse" href="${WOL+v.u}" target="_blank" rel="noopener"><span class="vt">${esc(v.t)}</span><span class="vr">${esc(v.r)}</span></a>`}
+function syncVerse(){const el=$('#verse');if(!el)return;const html=verseHTML(curMode());if(el.outerHTML===html)return;
+  el.classList.add('fade');setTimeout(()=>{const n=$('#verse');if(n){n.outerHTML=html;const m=$('#verse');m.classList.add('fade');requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.remove('fade')))}},180)}
+
+/* ---------- 암호화 ---------- */
 const TE=new TextEncoder(),TD=new TextDecoder();
 function b64(u8){let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)}
 function unb64(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
@@ -297,160 +365,186 @@ async function sync(){
   syncing=false;if(again){again=false;sync()}
 }
 function setStatus(ok,msg){sync_={ok,msg};const d=$('#sync');if(d)d.outerHTML=syncDot();const m=$('#syncMsg');if(m){m.textContent=msg;m.className='status'+(ok===false?' err':'')}}
-function syncDot(){const c=!configured()?'':sync_.ok===true?'ok':sync_.ok===false?'err':'busy';return `<button class="dot ${c}" id="sync" data-view="settings" aria-label="${esc(configured()?sync_.msg:'동기화 꺼짐')}" title="${esc(configured()?sync_.msg:'동기화 꺼짐')}"></button>`}
+function syncDot(){const c=!configured()?'':sync_.ok===true?'ok':sync_.ok===false?'err':'busy';const t=esc(configured()?sync_.msg:'동기화 꺼짐');return `<button class="dot ${c}" id="sync" data-view="settings" aria-label="${t}" title="${t}"></button>`}
+function tools(){return `<div class="tools"><button class="eye" data-act="hide" aria-pressed="${!!set.hide}">${set.hide?'보이기':'가리기'}</button>${syncDot()}</div>`}
 
 /* ---------- 화면: 쓰기 ---------- */
-function entryHTML(e,showDate=true){
+function lineHTML(e){
   const n=linkedOf(e).length;
-  const meta=[showDate?fmtShortY(e.d):'',n?(e.t==='p'?`응답 ${n}`:`기도 ${n}`):''].filter(Boolean).join('   ');
-  return `<button class="entry ${e.t}" data-open="${e.id}"><div class="tx">${fmtText(e.text)}</div>${meta?`<div class="meta">${meta}</div>`:''}</button>`;
+  const bits=[...(e.who||[]).map(w=>`<span class="wp">${esc(disp(w))}</span>`)];
+  if(n)bits.push(e.t==='p'?`이어짐 ${n}`:`간청 ${n}`);
+  return `<button class="line" data-open="${e.id}"><span class="tx">${fmtText(e.text)}</span>${bits.length?`<span class="lm">${bits.join('')}</span>`:''}</button>`;
+}
+function blocksHTML(es){
+  return['g','p','a'].map(k=>{const it=es.filter(e=>e.t===k).sort(byDate);
+    return it.length?`<div class="blk c-${k}"><div class="bh">${NAME[k]} ${it.length}</div>${it.map(lineHTML).join('')}</div>`:''}).join('');
+}
+function daysHTML(es){
+  const g=new Map();for(const e of es){if(!g.has(e.d))g.set(e.d,[]);g.get(e.d).push(e)}
+  return[...g].map(([d,it])=>{const dd=parseD(d);return `<div class="dl">${fmtShortY(d)} ${WD[dd.getDay()]}요일</div>${blocksHTML(it)}`}).join('');
+}
+function whoBar(){
+  if(!targets().length)return '';
+  return `<div class="who" id="who" role="group" aria-label="대상"><span class="lbl">대상</span>${targets().map(t=>`<button class="wchip" data-who="${esc(t)}" aria-pressed="${ui.who.includes(t)}">${esc(disp(t))}</button>`).join('')}</div>`;
 }
 function viewWrite(){
-  const d=parseD(today()),p=ui.mode==='p';
+  const d=parseD(today()),m=curMode();
   return `<header class="top"><div><div class="date">${d.getMonth()+1}월 ${d.getDate()}일</div><div class="wd">${WD[d.getDay()]}요일</div></div>${tools()}</header>
-  <section class="composer ${p?'':'ans'}" id="composer">
-    <div class="ctop"><div class="seg" role="group" aria-label="기록 종류"><button data-mode="p" aria-pressed="${p}">기도</button><button data-mode="a" aria-pressed="${!p}">응답</button></div>
-      <input type="date" id="dateIn" class="datechip${ui.date?' past':''}" value="${ui.date||today()}" max="${today()}" aria-label="기록 날짜"></div>
-    <textarea id="ta" rows="1" enterkeyhint="done" aria-label="한 줄 기록" placeholder="${p?'오늘의 기도를 한 줄로':'오늘 느낀 응답을 한 줄로'}">${esc(ui.draft)}</textarea>
-    ${targets().length?`<div class="chips targets" id="targets">${targetChips()}</div>`:''}
+  ${verseHTML(m)}
+  ${whoBar()}
+  <section class="composer c-${m}" id="composer">
+    <div class="ctop"><div class="seg types" role="group" aria-label="기록 종류">${['g','p','a'].map(k=>`<button class="c-${k}" data-mode="${k}" aria-pressed="${m===k}">${NAME[k]}</button>`).join('')}</div>
+      <input type="date" id="dateIn" class="datechip${ui.date?' past':''}" value="${workDay()}" max="${today()}" aria-label="기록 날짜"></div>
+    <textarea id="ta" rows="1" enterkeyhint="done" aria-label="한 줄 기록" placeholder="${placeholder(m)}">${esc(ui.draft)}</textarea>
     <div class="row"><div class="float" id="float"></div><button class="btn primary" id="save">적기</button></div>
   </section>
   <div id="lists">${writeLists()}</div>`;
 }
 function writeLists(){
-  const td=alive().filter(e=>e.d===today()).sort(byDate),rg=retro();let h='';
-  if(td.length)h+=`<h2>오늘</h2>${td.map(e=>entryHTML(e,false)).join('')}`;
-  if(rg.length)h+=`<h2>이맘때</h2>`+rg.map(g=>`<div class="retro"><div class="rl">${g.label}</div>${g.items.map(e=>entryHTML(e)).join('')}</div>`).join('');
-  if(!h)h=`<p class="empty">한 줄이면 충분해요. 적어 둔 기도는 한 달, 반년, 1년 뒤 이 자리에 다시 떠올라요.</p>`;
+  const day=workDay(),td=alive().filter(e=>e.d===day).sort(byDate),rg=retro();let h='';
+  if(td.length){
+    h+=`<h2>${ui.date?fmtShortY(day):'오늘'}</h2>${blocksHTML(td)}`;
+  }
+  if(rg.length)h+=`<h2>이맘때</h2>`+rg.map(g=>`<div class="retro"><div class="rl">${g.label}</div>${daysHTML(g.items)}</div>`).join('');
+  if(!h)h=`<p class="empty">감사 세 가지로 시작해 보세요. 세 줄을 적으면 간청으로 넘어가요. 적어 둔 기록은 한 달, 반년, 1년 뒤 이 자리에 다시 떠올라요.</p>`;
   return h;
 }
 let floatT=null;
-function updateFloat(){
-  const box=$('#float');if(!box)return;
+function renderFloat(){
+  const box=$('#float');if(!box)return;const m=curMode();
+  if(ui.flo){const e=byId(ui.flo.eid),c=ui.flo.cands.map(byId).filter(Boolean);
+    if(e&&c.length){box.innerHTML=`<div class="lbl">닮은 간청, 누르면 연결돼요</div><div class="chips">${c.map(p=>`<button class="chip" data-pick="${p.id}" data-ans="${e.id}" aria-pressed="${isLinked(p.id,e.id)}">${fmtShortY(p.d)} ${esc(snip(p.text,12))}</button>`).join('')}</div>`;return}
+    ui.flo=null;}
   const t=ui.draft.trim();
-  if(ui.mode!=='p'||!set.reverse||t.length<4){box.innerHTML='';return}
-  const r=similar(t,'a',{k:3,min:.2});
-  box.innerHTML=r.length?`<div class="lbl">전에 느낀 응답</div><div class="chips">${r.map(e=>`<button class="chip ans" data-open="${e.id}">${fmtShortY(e.d)} ${esc(snip(e.text,14))}</button>`).join('')}</div>`:'';
+  if(m==='p'&&set.reverse&&t.length>=4){
+    const r=similar(t,['a','g'],{k:3,min:.2,topics:ui.who});
+    if(r.length){box.innerHTML=`<div class="lbl">전에 느낀 응답과 감사</div><div class="chips">${r.map(e=>`<button class="chip soft" data-open="${e.id}">${fmtShortY(e.d)} ${esc(snip(e.text,12))}</button>`).join('')}</div>`;return}
+  }
+  box.innerHTML=t?'':`<div class="hint">${hintText(m)}</div>`;
 }
 function doSave(){
-  const ta=$('#ta'),text=ta.value.trim();if(!text)return;
-  const e=addEntry(ui.mode,text,ui.date);ui.draft='';ta.value='';autosize(ta);$('#float').innerHTML='';refreshTargets();$('#lists').innerHTML=writeLists();
-  if(e.t==='a'){const c=similar(e,'p',{k:6});if(c.length){openMatch(e,c);return}}
-  toast(ui.date?`${fmtShortY(ui.date)}에 적었어요`:'적었어요');
+  const ta=$('#ta'),text=ta.value.trim();if(!text){flipFlow();return}
+  const m=curMode(),e=addEntry(m,text,ui.date,ui.who);
+  ui.draft='';ta.value='';autosize(ta);ui.who=[];refreshWho();
+  if(m==='g'&&ui.manual&&thxCount()===THX())ui.manual=false;
+  ui.flo=null;
+  if(m!=='p'){const c=similar(e,['p'],{k:4,min:.18});if(c.length)ui.flo={eid:e.id,cands:c.map(x=>x.id)}}
+  $('#lists').innerHTML=writeLists();syncComposer();
+  if(m==='g'&&!ui.manual&&thxCount()===THX()&&curMode()==='p')toast(`감사 ${THX()}가지를 적었어요. 이제 간청이에요`);
+  else if(ui.date)toast(`${fmtShortY(ui.date)}에 적었어요`);
 }
-const targets=()=>(data.cfg&&data.cfg.targets)||[];
-const hasTag=(t,x)=>tagsOf(t).includes(x);
-function targetChips(){return targets().map(t=>`<button class="chip" data-target="${esc(t)}" aria-pressed="${hasTag(ui.draft,t)}">${esc(t)}</button>`).join('')}
-function refreshTargets(){const b=$('#targets');if(b)b.innerHTML=targetChips()}
-function toggleTarget(t){
-  const ta=$('#ta');let v=ta.value;
-  if(hasTag(v,t)){const re=new RegExp('(^|\\s)#'+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=\\s|$)','g');v=v.replace(re,'$1').replace(/\s{2,}/g,' ').trim()}
-  else v=(v.trim()?v.trim()+' ':'')+'#'+t+' ';
-  ta.value=ui.draft=v;autosize(ta);refreshTargets();updateFloat();ta.focus();
-}
-function tools(){return `<div class="tools"><button class="eye" data-act="hide" aria-pressed="${!!set.hide}">${set.hide?'보이기':'가리기'}</button>${syncDot()}</div>`}
+function refreshWho(){document.querySelectorAll('[data-who]').forEach(b=>b.setAttribute('aria-pressed',ui.who.includes(b.dataset.who)))}
 function autosize(ta){ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'}
 
 /* ---------- 화면: 돌아보기 ---------- */
 function currentList(){
   const q=ui.q.trim().toLowerCase();
-  return alive().filter(e=>(ui.filter==='all'||e.t===ui.filter)&&(!ui.tag||tagsOf(e.text).includes(ui.tag))&&(!q||e.text.toLowerCase().includes(q))).sort((a,b)=>-byDate(a,b));
+  return alive().filter(e=>(ui.filter==='all'||e.t===ui.filter)&&(!ui.tag||topicsOf(e).includes(ui.tag))&&(!q||e.text.toLowerCase().includes(q)||(e.who||[]).some(w=>w.toLowerCase().includes(q)))).sort((a,b)=>-byDate(a,b));
 }
 function monthsHTML(list){
   if(!list.length)return `<p class="empty">${alive().length?'맞는 기록이 없어요.':'아직 기록이 없어요. 쓰기 화면에서 한 줄을 적어 보세요.'}</p>`;
   const g=new Map();for(const e of list){const k=e.d.slice(0,7);if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
-  return[...g].map(([k,es])=>{const[y,m]=k.split('-');const np=es.filter(e=>e.t==='p').length,na=es.length-np;
-    return `<h2 class="mh">${y}년 ${+m}월 <span>기도 ${np}   응답 ${na}</span></h2>${es.map(e=>entryHTML(e)).join('')}`}).join('');
+  return[...g].map(([k,es])=>{const[y,m]=k.split('-');const c=t=>es.filter(e=>e.t===t).length;
+    return `<h2 class="mh">${y}년 ${+m}월 <span>감사 ${c('g')}   간청 ${c('p')}   응답 ${c('a')}</span></h2>${daysHTML(es)}`}).join('');
 }
 function viewLook(){
-  const tc=new Map();for(const e of alive())for(const t of tagsOf(e.text))tc.set(t,(tc.get(t)||0)+1);
-  const tags=[...tc].filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,14);
+  const tc=new Map();for(const e of alive())for(const t of topicsOf(e))tc.set(t,(tc.get(t)||0)+1);
+  const tags=[...tc].filter(x=>x[1]>=2||targets().includes(x[0])).sort((a,b)=>b[1]-a[1]).slice(0,16);
   return `<header class="top"><div class="date">돌아보기</div>${tools()}</header>
   <input class="search" id="q" type="search" placeholder="낱말로 찾기" value="${esc(ui.q)}" aria-label="찾기">
-  <div class="seg" role="group" aria-label="종류">${[['all','전체'],['p','기도'],['a','응답']].map(([k,l])=>`<button data-filter="${k}" aria-pressed="${ui.filter===k}">${l}</button>`).join('')}</div>
-  ${tags.length?`<h2>자주 드린 주제</h2><div class="chips">${tags.map(([t,n])=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${ui.tag===t}">#${esc(t)} ${n}</button>`).join('')}</div>`:''}
+  <div class="seg" role="group" aria-label="종류">${[['all','전체'],['g','감사'],['p','간청'],['a','응답']].map(([k,l])=>`<button data-filter="${k}" aria-pressed="${ui.filter===k}">${l}</button>`).join('')}</div>
+  ${tags.length?`<h2>대상과 주제</h2><div class="chips">${tags.map(([t,n])=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${ui.tag===t}">${targets().includes(t)?esc(disp(t)):'#'+esc(t)} ${n}</button>`).join('')}</div>`:''}
   <div id="months">${monthsHTML(currentList())}</div>`;
 }
 
 /* ---------- 화면: 설정 ---------- */
 function viewSettings(){
   return `<header class="top"><div class="date">설정</div>${syncDot()}</header>
+  <h2>기도 루틴</h2>
+  <label class="field"><span>하루 감사 개수 (채우면 간청으로 넘어가요)</span><input type="number" id="thanksIn" min="1" max="10" value="${THX()}"></label>
+  <label class="field"><span>자주 기도하는 대상 (쉼표로 구분)</span><input type="text" id="targetsIn" value="${esc(targets().map(disp).join(', '))}" placeholder="가족, 회중, 연구생, 건강" autocomplete="off"></label>
+  <p class="sub">대상은 쓰는 칸 위에 따로 나와요. 누르면 다음 한 줄에 붙고, 두 기기에 함께 반영돼요.</p>
+  <label class="toggle"><input type="checkbox" data-set="verse" ${set.verse?'checked':''}> 쓰기 화면에 성구 보이기 (감사, 간청, 응답에 따라 바뀌어요)</label>
+  <label class="toggle"><input type="checkbox" data-set="reverse" ${set.reverse?'checked':''}> 간청을 적을 때 닮은 응답과 감사 띄우기</label>
   <h2>맥과 아이폰 동기화</h2>
   <p class="sub">두 기기에 같은 토큰(gist 권한)과 Gist ID를 넣으면 기록이 합쳐져요.</p>
   <label class="field"><span>GitHub 토큰</span><input type="password" data-set="token" value="${esc(set.token)}" autocomplete="off"></label>
   <label class="field"><span>Gist ID</span><input type="text" data-set="gistId" value="${esc(set.gistId)}" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
   <div class="row">${set.token&&!set.gistId?`<button class="btn" data-act="createGist">새 Gist 만들기</button>`:''}${configured()?`<button class="btn ghost" data-act="syncNow">지금 동기화</button>`:''}</div>
   <p class="status${sync_.ok===false?' err':''}" id="syncMsg">${esc(configured()?sync_.msg:'토큰과 Gist ID를 넣으면 동기화가 켜져요')}</p>
-  <h2>자주 기도하는 대상</h2>
-  <p class="sub">쉼표로 구분해 넣으면 쓰기 화면에 버튼으로 나와요. 누르면 태그로 붙고, 두 기기에 함께 반영돼요.</p>
-  <label class="field"><span>대상</span><input type="text" id="targetsIn" value="${esc(targets().join(', '))}" placeholder="가족, 회중, 연구생, 건강" autocomplete="off"></label>
   <h2>암호화</h2>
   <p class="sub">비밀 Gist도 주소를 알면 열려요. 암호문을 넣으면 내용을 잠가서 올려요. 모든 기기에 같은 암호문을 넣어야 하고, 잊으면 되찾을 수 없어요.</p>
   <label class="field"><span>암호문</span><input type="password" data-set="pass" value="${esc(set.pass)}" autocomplete="new-password"></label>
-  <h2>쓰는 중에</h2>
-  <label class="toggle"><input type="checkbox" data-set="reverse" ${set.reverse?'checked':''}> 기도를 적을 때 닮은 응답 띄우기</label>
   <h2>내보내기와 백업</h2>
   <div class="row" style="justify-content:flex-start"><button class="btn ghost" data-act="exMd">마크다운 내보내기</button><button class="btn ghost" data-act="exJson">JSON 백업</button><button class="btn ghost" data-act="imJson">JSON 가져오기</button></div>
   <p class="sub">기록 ${alive().length}개, 연결 ${liveLinks().length}개</p>
-  <div class="danger-zone"><h2>모두 지우기</h2><p class="sub">모든 기록과 연결을 지워요. 설정과 대상 버튼은 남아요. 먼저 JSON 백업을 권해요.</p><button class="btn danger" data-act="wipe">모두 지우기</button></div>`;
+  <div class="danger-zone"><h2>모두 지우기</h2><p class="sub">모든 기록과 연결을 지워요. 설정과 대상은 남아요. 먼저 JSON 백업을 권해요.</p><button class="btn danger" data-act="wipe">모두 지우기</button></div>`;
 }
 
 /* ---------- 시트 ---------- */
 function openSheet(html){const s=$('#sheet');s.innerHTML=html;s.classList.add('open');$('#scrim').classList.add('open');s.scrollTop=0;s.focus({preventScroll:true})}
-function closeSheet(){$('#sheet').classList.remove('open');$('#scrim').classList.remove('open');stack=[];softRender()}
-function openMatch(e,c){
-  openSheet(`<h3>이 응답과 닮은 기도</h3><p class="sub">이어지는 기도를 누르면 연결돼요. 없으면 그냥 닫으세요.</p>
-  ${c.map(p=>`<button class="pick" data-pick="${p.id}" data-ans="${e.id}" aria-pressed="${isLinked(p.id,e.id)}"><span class="pd">${fmtShortY(p.d)}, ${daysBetween(p.d,e.d)}일 전</span><span class="pt">${fmtText(p.text)}</span></button>`).join('')}
-  <div class="row end"><button class="btn" data-act="close">완료</button></div>`);
-}
-function openDetail(id,edit=false){
+function closeSheet(){$('#sheet').classList.remove('open');$('#scrim').classList.remove('open');stack=[];ui.edit=null;softRender()}
+function openDetail(id){
   const e=byId(id);if(!e){closeSheet();return}
-  const other=e.t==='p'?'a':'p',linked=linkedOf(e).sort(byDate),ex=new Set(linked.map(x=>x.id));
-  const cand=similar(e,other,{k:4,exclude:ex}),same=e.t==='p'?similar(e,'p',{k:8,min:.25}):[];
+  const E=ui.edit&&ui.edit.id===id?ui.edit:null;
+  const isP=e.t==='p',linked=linkedOf(e).sort(byDate),ex=new Set(linked.map(x=>x.id));
+  const cand=similar(e,isP?['a','g']:['p'],{k:4,exclude:ex}),same=isP?similar(e,['p'],{k:8,min:.25}):[];
   let h=stack.length>1?`<button class="back" data-act="back">← 이전 기록</button>`:'';
-  h+=`<div class="dh"><span class="kind ${e.t}">${e.t==='p'?'기도':'응답'}</span><span class="dd">${fmtFull(e.d)}</span></div>`;
-  h+=edit?`<textarea class="ed" id="edTx" aria-label="내용">${esc(e.text)}</textarea><label class="field"><span>날짜</span><input type="date" id="edD" value="${e.d}"></label><div class="row end"><button class="btn ghost" data-act="cancel">취소</button><button class="btn" data-act="saveEdit">저장</button></div>`
-         :`<p class="big">${fmtText(e.text)}</p>`;
-  h+=`<h3>${e.t==='p'?'이어진 응답':'이 응답이 닿은 기도'}</h3>`;
-  h+=linked.length?`<div class="thread ${other}">${linked.map(x=>{
-      const g=e.t==='p'?daysBetween(e.d,x.d):daysBetween(x.d,e.d);
-      const lab=e.t==='p'?(g>0?`${g}일 뒤`:g===0?'같은 날':`${-g}일 앞서`):(g>0?`${g}일 전에 드린 기도`:'같은 무렵');
-      const[p,a]=e.t==='p'?[e.id,x.id]:[x.id,e.id];
-      return `<div class="node"><div class="elapsed">${lab}</div><button class="open" data-open="${x.id}">${fmtText(x.text)}</button><div class="nm">${fmtShortY(x.d)}<button class="link-x" data-unlink="${p}|${a}">연결 풀기</button></div></div>`}).join('')}</div>`
+  const t=E?E.t:e.t;
+  h+=`<div class="dh c-${t}"><span class="kind">${NAME[t]}</span><span class="dd">${fmtFull(e.d)}</span></div>`;
+  if(E){
+    h+=`<textarea class="ed" id="edTx" aria-label="내용">${esc(e.text)}</textarea>
+    <div class="seg types" style="margin-top:10px" role="group" aria-label="종류">${['g','p','a'].map(k=>`<button class="c-${k}" data-etype="${k}" aria-pressed="${E.t===k}">${NAME[k]}</button>`).join('')}</div>
+    ${targets().length||E.who.length?`<div class="chips" style="margin-top:10px">${[...new Set([...targets(),...E.who])].map(w=>`<button class="wchip" data-ewho="${esc(w)}" aria-pressed="${E.who.includes(w)}">${esc(disp(w))}</button>`).join('')}</div>`:''}
+    <label class="field"><span>날짜</span><input type="date" id="edD" value="${e.d}" max="${today()}"></label>
+    <div class="row end"><button class="btn ghost" data-act="cancel">취소</button><button class="btn" data-act="saveEdit">저장</button></div>`;
+  }else{
+    h+=`<p class="big">${fmtText(e.text)}</p>`;
+    if(e.who&&e.who.length)h+=`<div class="chips">${e.who.map(w=>`<span class="wp">${esc(disp(w))}</span>`).join('')}</div>`;
+  }
+  h+=`<h3>${isP?'이어진 응답과 감사':'이어진 간청'}</h3>`;
+  h+=linked.length?`<div class="thread">${linked.map(x=>{
+      const g=isP?daysBetween(e.d,x.d):daysBetween(x.d,e.d);
+      const lab=isP?`${NAME[x.t]}, ${g>0?g+'일 뒤':g===0?'같은 날':(-g)+'일 앞서'}`:(g>0?`${g}일 전에 드린 간청`:'같은 무렵의 간청');
+      const[p,a]=isP?[e.id,x.id]:[x.id,e.id];
+      return `<div class="node c-${x.t}"><div class="elapsed">${lab}</div><button class="open" data-open="${x.id}">${fmtText(x.text)}</button><div class="nm">${fmtShortY(x.d)}<button class="link-x" data-unlink="${p}|${a}">연결 풀기</button></div></div>`}).join('')}</div>`
     :`<p class="sub">아직 없어요.</p>`;
-  if(cand.length)h+=`<h3>닮은 ${other==='a'?'응답':'기도'}</h3>`+cand.map(x=>{const[p,a]=e.t==='p'?[e.id,x.id]:[x.id,e.id];
-      return `<div class="cand"><button class="pick" data-open="${x.id}"><span class="pd">${fmtShortY(x.d)}</span><span class="pt">${fmtText(x.text)}</span></button><button class="btn small ghost" data-linkto="${p}|${a}">연결</button></div>`}).join('');
+  if(cand.length)h+=`<h3>닮은 ${isP?'응답과 감사':'간청'}</h3>`+cand.map(x=>{const[p,a]=isP?[e.id,x.id]:[x.id,e.id];
+      return `<div class="cand"><button class="pick" data-open="${x.id}"><span class="pd">${NAME[x.t]}, ${fmtShortY(x.d)}</span><span class="pt">${fmtText(x.text)}</span></button><button class="btn small ghost" data-linkto="${p}|${a}">연결</button></div>`}).join('');
   if(same.length){const first=[e,...same].sort(byDate)[0];
-    h+=`<h3>비슷하게 드린 기도</h3><p class="sub">같은 마음으로 ${same.length+1}번 기도했어요. 처음은 ${fmtShortY(first.d)}.</p><div class="chips">${same.sort(byDate).map(x=>`<button class="chip" data-open="${x.id}">${fmtShortY(x.d)}</button>`).join('')}</div>`}
-  if(!edit)h+=`<div class="row end"><button class="btn danger" data-act="delete">지우기</button><button class="btn ghost" data-act="edit">고치기</button></div>`;
+    h+=`<h3>비슷하게 드린 간청</h3><p class="sub">같은 마음으로 ${same.length+1}번 구했어요. 처음은 ${fmtShortY(first.d)}.</p><div class="chips">${same.sort(byDate).map(x=>`<button class="chip" data-open="${x.id}">${fmtShortY(x.d)}</button>`).join('')}</div>`}
+  if(!E)h+=`<div class="row end"><button class="btn danger" data-act="delete">지우기</button><button class="btn ghost" data-act="edit">고치기</button></div>`;
   openSheet(h);
 }
-function pushDetail(id){if(stack[stack.length-1]!==id)stack.push(id);openDetail(id)}
+function pushDetail(id){ui.edit=null;if(stack[stack.length-1]!==id)stack.push(id);openDetail(id)}
 
 /* ---------- 렌더 ---------- */
 function render(){
   const v=ui.view;document.body.classList.toggle('hide',!!set.hide);
   $('#app').innerHTML=v==='write'?viewWrite():v==='look'?viewLook():viewSettings();
   document.querySelectorAll('nav [data-view]').forEach(b=>b.setAttribute('aria-current',b.dataset.view===v?'page':'false'));
-  const ta=$('#ta');if(ta){autosize(ta);updateFloat()}
+  const ta=$('#ta');if(ta){autosize(ta);renderFloat()}
 }
 function softRender(){
   const a=document.activeElement;
   if(a&&(a.tagName==='TEXTAREA'||a.tagName==='INPUT')&&$('#app').contains(a)){
     if($('#lists'))$('#lists').innerHTML=writeLists();
     if($('#months'))$('#months').innerHTML=monthsHTML(currentList());
+    syncComposer();
   }else render();
 }
 let toastT=null;
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1600)}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800)}
 
 /* ---------- 내보내기 ---------- */
 function toMarkdown(){
-  let md=`# 기도 한 줄\n\n내보낸 날: ${today()}\n`,cur='';
-  for(const e of alive().sort(byDate)){
-    const k=e.d.slice(0,7);if(k!==cur){cur=k;const[y,m]=k.split('-');md+=`\n## ${y}년 ${+m}월\n\n`}
-    md+=`- ${e.d} ${e.t==='p'?'[기도]':'[응답]'} ${e.text.replace(/\n/g,' ')}\n`;
-    for(const x of linkedOf(e).sort(byDate))md+=`  - ${e.t==='p'?'응답':'기도'} ${x.d}: ${x.text.replace(/\n/g,' ')}\n`;
+  let md=`# 기도 한 줄\n\n내보낸 날: ${today()}\n`,cur='',day='';
+  for(const e of alive().sort((a,b)=>byDate(a,b)||'gpa'.indexOf(a.t)-'gpa'.indexOf(b.t))){
+    const k=e.d.slice(0,7);if(k!==cur){cur=k;const[y,m]=k.split('-');md+=`\n## ${y}년 ${+m}월\n`}
+    if(e.d!==day){day=e.d;md+=`\n### ${e.d}\n\n`}
+    const who=(e.who||[]).map(w=>' @'+w).join('');
+    md+=`- [${NAME[e.t]}]${who} ${e.text.replace(/\n/g,' ')}\n`;
+    for(const x of linkedOf(e).sort(byDate))md+=`  - ${NAME[x.t]} ${x.d}: ${x.text.replace(/\n/g,' ')}\n`;
   }
   return md;
 }
@@ -463,35 +557,37 @@ async function download(name,text,type){
 
 /* ---------- 이벤트 ---------- */
 document.addEventListener('click',async ev=>{
-  const b=ev.target.closest('button');
   if(ev.target.id==='scrim'){closeSheet();return}
-  if(!b)return;const D=b.dataset;
+  const b=ev.target.closest('button');if(!b)return;const D=b.dataset;
   if(D.view){ui.view=D.view;render();scrollTo(0,0);return}
-  if(D.mode){ui.mode=D.mode;const c=$('#composer');c.classList.toggle('ans',ui.mode==='a');
-    c.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===ui.mode));
-    $('#ta').placeholder=ui.mode==='p'?'오늘의 기도를 한 줄로':'오늘 느낀 응답을 한 줄로';updateFloat();return}
+  if(D.mode){ui.manual=true;ui.mode=D.mode;ui.flo=null;syncComposer();return}
+  if(D.who!==undefined){const w=D.who;ui.who=ui.who.includes(w)?ui.who.filter(x=>x!==w):[...ui.who,w];refreshWho();renderFloat();return}
   if(b.id==='save'){doSave();return}
-  if(D.target!==undefined){toggleTarget(D.target);return}
   if(D.open){pushDetail(D.open);return}
-  if(D.pick){const on=b.getAttribute('aria-pressed')!=='true';setLink(D.pick,D.ans,on);b.setAttribute('aria-pressed',on);return}
+  if(D.pick){const on=b.getAttribute('aria-pressed')!=='true';setLink(D.pick,D.ans,on);b.setAttribute('aria-pressed',on);if(on)toast('연결했어요');return}
   if(D.linkto){const[p,a]=D.linkto.split('|');setLink(p,a,true);openDetail(stack[stack.length-1]);toast('연결했어요');return}
   if(D.unlink){const[p,a]=D.unlink.split('|');setLink(p,a,false);openDetail(stack[stack.length-1]);return}
+  if(D.etype){ui.edit.text=$('#edTx').value;ui.edit.t=D.etype;keepEditText();return}
+  if(D.ewho!==undefined){const w=D.ewho,E=ui.edit;E.text=$('#edTx').value;E.who=E.who.includes(w)?E.who.filter(x=>x!==w):[...E.who,w];keepEditText();return}
   if(D.filter){ui.filter=D.filter;render();return}
   if(D.tag){ui.tag=ui.tag===D.tag?null:D.tag;render();return}
   const cur=byId(stack[stack.length-1]);
   switch(D.act){
-    case 'close':closeSheet();break;
     case 'hide':set.hide=!set.hide;saveSet();document.body.classList.toggle('hide',set.hide);document.querySelectorAll('.eye').forEach(x=>{x.setAttribute('aria-pressed',set.hide);x.textContent=set.hide?'보이기':'가리기'});break;
+    case 'back':stack.pop();ui.edit=null;openDetail(stack[stack.length-1]);break;
+    case 'edit':ui.edit={id:cur.id,t:cur.t,who:[...(cur.who||[])],text:cur.text};openDetail(cur.id);break;
+    case 'cancel':ui.edit=null;openDetail(cur.id);break;
+    case 'saveEdit':{
+      const E=ui.edit,t=$('#edTx').value.trim(),d=$('#edD').value||cur.d;if(!t){toast('내용이 비어 있어요');break}
+      if((cur.t==='p')!==(E.t==='p'))data.links.forEach(l=>{if((l.p===cur.id||l.a===cur.id)&&!l.del){l.del=true;l.u=Date.now()}});
+      cur.text=t;cur.d=d>today()?today():d;cur.t=E.t;cur.who=E.who.length?E.who:undefined;cur.u=Date.now();commit();
+      ui.edit=null;openDetail(cur.id);toast('고쳤어요');break}
+    case 'delete':if(confirm('이 기록을 지울까요? 연결도 함께 풀려요.')){delEntry(cur);closeSheet();toast('지웠어요')}break;
     case 'wipe':{const n=alive().length;if(!n){toast('지울 기록이 없어요');break}
       const ans=prompt(`기록 ${n}개와 모든 연결을 지워요. 동기화된 다른 기기에서도 지워지고 되돌릴 수 없어요.\n계속하려면 "모두 지우기"라고 입력하세요.`);
       if(ans!=='모두 지우기'){if(ans!==null)toast('입력이 달라 취소했어요');break}
-      const now=Date.now();data.entries.forEach(e=>{if(!e.del){e.del=true;e.text='';e.u=now}});data.links.forEach(l=>{l.del=true;l.u=now});
+      const now=Date.now();data.entries.forEach(e=>{if(!e.del){e.del=true;e.text='';e.who=undefined;e.u=now}});data.links.forEach(l=>{l.del=true;l.u=now});
       commit();render();toast('모두 지웠어요');break}
-    case 'back':stack.pop();openDetail(stack[stack.length-1]);break;
-    case 'edit':openDetail(cur.id,true);break;
-    case 'cancel':openDetail(cur.id);break;
-    case 'saveEdit':{const t=$('#edTx').value.trim(),d=$('#edD').value||cur.d;if(!t){toast('내용이 비어 있어요');break}editEntry(cur,t,d);openDetail(cur.id);toast('고쳤어요');break}
-    case 'delete':if(confirm('이 기록을 지울까요? 연결도 함께 풀려요.')){delEntry(cur);closeSheet();toast('지웠어요')}break;
     case 'createGist':try{await gistCreate();render();setStatus(true,'새 Gist를 만들었어요');toast('Gist ID를 다른 기기에도 넣어 주세요')}catch(e){setStatus(false,e.message)}break;
     case 'syncNow':sync();break;
     case 'exMd':download(`기도-한-줄-${today()}.md`,toMarkdown(),'text/markdown');break;
@@ -499,9 +595,10 @@ document.addEventListener('click',async ev=>{
     case 'imJson':$('#importFile').click();break;
   }
 });
+function keepEditText(){const txt=ui.edit.text;openDetail(ui.edit.id);const t=$('#edTx');if(t)t.value=txt}
 document.addEventListener('input',ev=>{
   const t=ev.target;
-  if(t.id==='ta'){ui.draft=t.value;autosize(t);refreshTargets();clearTimeout(floatT);floatT=setTimeout(updateFloat,500)}
+  if(t.id==='ta'){ui.draft=t.value;ui.flo=null;autosize(t);clearTimeout(floatT);floatT=setTimeout(renderFloat,t.value.trim()?450:0)}
   if(t.id==='q'){ui.q=t.value;$('#months').innerHTML=monthsHTML(currentList())}
 });
 document.addEventListener('keydown',ev=>{
@@ -510,18 +607,24 @@ document.addEventListener('keydown',ev=>{
 });
 document.addEventListener('change',async ev=>{
   const t=ev.target,k=t.dataset&&t.dataset.set;
-  if(t.id==='dateIn'){const v=t.value;ui.date=(!v||v===today())?null:(v>today()?today():v);t.value=ui.date||today();t.classList.toggle('past',!!ui.date);return}
-  if(t.id==='targetsIn'){data.cfg={targets:[...new Set(t.value.split(/[,，\n]/).map(x=>x.trim().replace(/^#/,'').replace(/[\s#.,!?]+/g,'_')).filter(Boolean))],u:Date.now()};t.value=targets().join(', ');commit();toast('대상 버튼을 저장했어요');return}
-  if(k){set[k]=t.type==='checkbox'?t.checked:t.value.trim();saveSet();
-    if(k!=='reverse'){render();if(configured())sync()}return}
+  if(t.id==='dateIn'){const v=t.value;ui.date=(!v||v>=today())?null:v;t.value=workDay();t.classList.toggle('past',!!ui.date);ui.manual=false;ui.flo=null;$('#lists').innerHTML=writeLists();syncComposer();return}
+  if(t.id==='targetsIn'){setCfg({targets:[...new Set(t.value.split(/[,，\n]/).map(x=>x.trim().replace(/^#/,'').replace(/[\s#.,!?]+/g,'_')).filter(Boolean))]});t.value=targets().map(disp).join(', ');toast('대상을 저장했어요');return}
+  if(t.id==='thanksIn'){const n=Math.max(1,Math.min(10,parseInt(t.value)||3));setCfg({thanks:n});t.value=n;toast(`감사 ${n}가지로 정했어요`);return}
+  if(k){set[k]=t.type==='checkbox'?t.checked:t.value.trim();saveSet();if(k!=='reverse'&&k!=='verse'){render();if(configured())sync()}return}
   if(t.id==='importFile'&&t.files[0]){
     try{const obj=await readAny(JSON.parse(await t.files[0].text()));data=merge(data,obj);commit();render();toast('가져와서 합쳤어요')}
     catch(e){toast(e.message||'읽을 수 없는 파일이에요')}
     t.value='';
   }
 });
-let hiddenAt=0;
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')hiddenAt=Date.now();if(document.visibilityState==='visible'){if(ui.date&&Date.now()-hiddenAt>30*60e3)ui.date=null;if(!$('#sheet').classList.contains('open'))softRender();sync()}else if(pushT){sync()}});
+let hiddenAt=0,lastDay=today();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){hiddenAt=Date.now();if(pushT)sync();return}
+  if(ui.date&&Date.now()-hiddenAt>30*60e3)ui.date=null;
+  if(lastDay!==today()){lastDay=today();ui.manual=false;ui.date=null}
+  if(!$('#sheet').classList.contains('open'))softRender();
+  sync();
+});
 
 render();sync();
 </script>

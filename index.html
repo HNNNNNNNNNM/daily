@@ -94,6 +94,8 @@ h2.mh span{color:var(--muted);font-weight:400;font-size:12px}
 .line{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 0;font:16px/1.7 var(--serif);white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
 .line+.line{border-top:1px dashed var(--line)}
 .lm{display:inline-flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin-left:8px;font:12px/1.4 var(--sans);color:var(--muted);vertical-align:1px;white-space:normal}
+.hr{display:flex;align-items:center;gap:8px;font:600 12px var(--sans);color:var(--muted);margin:12px 0 0;font-variant-numeric:tabular-nums}
+.hr::after{content:"";flex:1;height:1px;background:var(--line)}
 .dl{font-size:13px;font-weight:600;margin:16px 0 0}
 .retro .dl{font-weight:500;color:var(--muted);margin-top:4px}
 .retro{margin:6px 0 14px}
@@ -379,9 +381,14 @@ function blocksHTML(es){
   return['g','p','a'].map(k=>{const it=es.filter(e=>e.t===k).sort(byDate);
     return it.length?`<div class="blk c-${k}"><div class="bh">${NAME[k]} ${it.length}</div>${it.map(lineHTML).join('')}</div>`:''}).join('');
 }
+const hourOf=e=>new Date(e.c||e.u||Date.now()).getHours();
+function sessionsHTML(es){
+  const g=new Map();for(const e of[...es].sort((a,b)=>(a.c||0)-(b.c||0))){const h=hourOf(e);if(!g.has(h))g.set(h,[]);g.get(h).push(e)}
+  return[...g].sort((a,b)=>a[0]-b[0]).map(([h,it])=>`<div class="hr">${h}시</div>${blocksHTML(it)}`).join('');
+}
 function daysHTML(es){
   const g=new Map();for(const e of es){if(!g.has(e.d))g.set(e.d,[]);g.get(e.d).push(e)}
-  return[...g].map(([d,it])=>{const dd=parseD(d);return `<div class="dl">${fmtShortY(d)} ${WD[dd.getDay()]}요일</div>${blocksHTML(it)}`}).join('');
+  return[...g].map(([d,it])=>{const dd=parseD(d);return `<div class="dl">${fmtShortY(d)} ${WD[dd.getDay()]}요일</div>${sessionsHTML(it)}`}).join('');
 }
 function whoBar(){
   if(!targets().length)return '';
@@ -403,7 +410,7 @@ function viewWrite(){
 function writeLists(){
   const day=workDay(),td=alive().filter(e=>e.d===day).sort(byDate),rg=retro();let h='';
   if(td.length){
-    h+=`<h2>${ui.date?fmtShortY(day):'오늘'}</h2>${blocksHTML(td)}`;
+    h+=`<h2>${ui.date?fmtShortY(day):'오늘'}</h2>${sessionsHTML(td)}`;
   }
   if(rg.length)h+=`<h2>이맘때</h2>`+rg.map(g=>`<div class="retro"><div class="rl">${g.label}</div>${daysHTML(g.items)}</div>`).join('');
   if(!h)h=`<p class="empty">감사 세 가지로 시작해 보세요. 세 줄을 적으면 간청으로 넘어가요. 적어 둔 기록은 한 달, 반년, 1년 뒤 이 자리에 다시 떠올라요.</p>`;
@@ -491,7 +498,7 @@ function openDetail(id){
   const cand=similar(e,isP?['a','g']:['p'],{k:4,exclude:ex}),same=isP?similar(e,['p'],{k:8,min:.25}):[];
   let h=stack.length>1?`<button class="back" data-act="back">← 이전 기록</button>`:'';
   const t=E?E.t:e.t;
-  h+=`<div class="dh c-${t}"><span class="kind">${NAME[t]}</span><span class="dd">${fmtFull(e.d)}</span></div>`;
+  h+=`<div class="dh c-${t}"><span class="kind">${NAME[t]}</span><span class="dd">${fmtFull(e.d)}, ${hourOf(e)}시 작성</span></div>`;
   if(E){
     h+=`<textarea class="ed" id="edTx" aria-label="내용">${esc(e.text)}</textarea>
     <div class="seg types" style="margin-top:10px" role="group" aria-label="종류">${['g','p','a'].map(k=>`<button class="c-${k}" data-etype="${k}" aria-pressed="${E.t===k}">${NAME[k]}</button>`).join('')}</div>
@@ -543,7 +550,7 @@ function toMarkdown(){
     const k=e.d.slice(0,7);if(k!==cur){cur=k;const[y,m]=k.split('-');md+=`\n## ${y}년 ${+m}월\n`}
     if(e.d!==day){day=e.d;md+=`\n### ${e.d}\n\n`}
     const who=(e.who||[]).map(w=>' @'+w).join('');
-    md+=`- [${NAME[e.t]}]${who} ${e.text.replace(/\n/g,' ')}\n`;
+    md+=`- ${hourOf(e)}시 [${NAME[e.t]}]${who} ${e.text.replace(/\n/g,' ')}\n`;
     for(const x of linkedOf(e).sort(byDate))md+=`  - ${NAME[x.t]} ${x.d}: ${x.text.replace(/\n/g,' ')}\n`;
   }
   return md;
